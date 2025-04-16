@@ -651,17 +651,34 @@ app = Flask(__name__)
 
 app.secret_key = 'your_secret_key'
 
-app.config['MYSQL_HOST'] = 'localhost'
-app.config['MYSQL_USER'] = 'root'
-app.config['MYSQL_PASSWORD'] = 'sakshi#12345'
-app.config['MYSQL_DB']='geeklogin'
-app.config['PORT']='3306'
+# app.config['MYSQL_HOST'] = 'localhost'
+# app.config['MYSQL_USER'] = 'root'
+# app.config['MYSQL_PASSWORD'] = 'sakshi#12345'
+# app.config['MYSQL_DB']='geeklogin'
+# app.config['PORT']='3306'
 
-app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://root:sakshi#12345@localhost:3306/geeklogin'
-app.config['SQLALCHEMY_TRACK_MODIFICATION']=False
+# app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://root:sakshi#12345@localhost:3306/geeklogin'
+# app.config['SQLALCHEMY_TRACK_MODIFICATION']=False
 
-mysql = MySQL(app)
-db=SQLAlchemy(app)
+# mysql = MySQL(app)
+# db=SQLAlchemy(app)
+
+# Configure MySQL using environment variables (Render will provide these)
+app.config['MYSQL_HOST'] = os.environ.get('MYSQL_HOST', 'localhost')
+app.config['MYSQL_USER'] = os.environ.get('MYSQL_USER', 'root')
+app.config['MYSQL_PASSWORD'] = os.environ.get('MYSQL_PASSWORD', '')
+app.config['MYSQL_DB'] = os.environ.get('MYSQL_DB', 'geeklogin')
+app.config['MYSQL_PORT'] = int(os.environ.get('MYSQL_PORT', 3306))
+
+# SQLAlchemy configuration (Recommended for production)
+app.config['SQLALCHEMY_DATABASE_URI'] = (
+    f"mysql+pymysql://{app.config['MYSQL_USER']}:{app.config['MYSQL_PASSWORD']}"
+    f"@{app.config['MYSQL_HOST']}:{app.config['MYSQL_PORT']}/{app.config['MYSQL_DB']}"
+)
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+
+db = SQLAlchemy(app)  # Initialize SQLAlchemy
+mysql = MySQL(app)    # If using Flask-MySQL
 
 app.app_context().push()
 
